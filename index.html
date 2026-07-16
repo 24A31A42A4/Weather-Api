@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --text: #f8fafc;
+            --text-muted: #cbd5e1;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-color);
+            background-image: radial-gradient(circle at top right, #334155, transparent 40%),
+                              radial-gradient(circle at bottom left, #1e1b4b, transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 2rem;
+        }
+
+        h1 {
+            text-align: center;
+            font-weight: 600;
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            background: var(--card-bg);
+            padding: 1rem;
+            border-radius: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(15, 23, 42, 0.5);
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+
+        button {
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            border: none;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .location-info {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .location-info h2 {
+            font-size: 2rem;
+            margin: 0;
+            margin-bottom: 0.5rem;
+        }
+
+        .location-info p {
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        #forecast-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            width: 100%;
+        }
+
+        .date-section {
+            width: 100%;
+        }
+
+        .date-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            color: #818cf8;
+        }
+
+        .cards-row {
+            display: flex;
+            overflow-x: auto;
+            gap: 1rem;
+            padding-bottom: 1rem;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) rgba(255,255,255,0.1);
+        }
+
+        .cards-row::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .cards-row::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .cards-row::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .forecast-card {
+            flex: 0 0 auto;
+            width: 200px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeIn 0.5s ease forwards;
+            opacity: 0;
+        }
+        
+        .forecast-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .forecast-card img {
+            width: 80px;
+            height: 80px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .temp {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin: 0.5rem 0;
+        }
+
+        .desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: capitalize;
+            margin-bottom: 1rem;
+        }
+
+        .details {
+            font-size: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            color: var(--text-muted);
+        }
+
+        .details span {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        #error-message {
+            color: #ef4444;
+            text-align: center;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .loader {
+            display: none;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 2rem auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Atmosphere</h1>
+        
+        <div class="search-box">
+            <input type="text" id="city-input" placeholder="Enter city name..." value="New York">
+            <button onclick="fetchWeather()">Search</button>
+        </div>
+
+        <div id="error-message"></div>
+        <div class="loader" id="loader"></div>
+
+        <div id="weather-content" style="display: none;">
+            <div class="location-info">
+                <h2 id="city-display">New York</h2>
+                <p>Lat: <span id="lat-display"></span> | Lon: <span id="lon-display"></span></p>
+            </div>
+            
+            <div id="forecast-container">
+                <!-- Grouped Cards will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchWeather() {
+            const cityInput = document.getElementById('city-input').value;
+            if (!cityInput) return;
+
+            const loader = document.getElementById('loader');
+            const errorMsg = document.getElementById('error-message');
+            const content = document.getElementById('weather-content');
+            
+            loader.style.display = 'block';
+            content.style.display = 'none';
+            errorMsg.style.display = 'none';
+
+            try {
+                // Ensure the FastAPI server is running on localhost:8000
+                const response = await fetch(`http://localhost:8000/weather?city=${encodeURIComponent(cityInput)}`);
+                if (!response.ok) {
+                    throw new Error('City not found or server error');
+                }
+                const data = await response.json();
+                
+                document.getElementById('city-display').textContent = data.city_name;
+                document.getElementById('lat-display').textContent = data.latitude.toFixed(2);
+                document.getElementById('lon-display').textContent = data.longitude.toFixed(2);
+                
+                const container = document.getElementById('forecast-container');
+                container.innerHTML = ''; // Clear previous
+
+                // Group by date
+                const grouped = {};
+                data.forecast.forEach((item) => {
+                    const dt = item.dt_txt || '';
+                    const parts = dt.split(' ');
+                    const dateStr = parts[0] || 'Unknown Date';
+                    const timeStr = parts[1] ? parts[1].substring(0, 5) : '';
+
+                    if (!grouped[dateStr]) grouped[dateStr] = [];
+                    grouped[dateStr].push({ item, timeStr });
+                });
+
+                Object.keys(grouped).forEach(dateStr => {
+                    const section = document.createElement('div');
+                    section.className = 'date-section';
+                    
+                    const date = new Date(dateStr);
+                    const displayDate = isNaN(date) ? dateStr : date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+                    
+                    section.innerHTML = `<div class="date-header">${displayDate}</div>`;
+                    
+                    const row = document.createElement('div');
+                    row.className = 'cards-row';
+                    
+                    grouped[dateStr].forEach((entry, index) => {
+                        const { item, timeStr } = entry;
+                        const card = document.createElement('div');
+                        card.className = 'forecast-card';
+                        card.style.animationDelay = `${index * 0.1}s`;
+                        
+                        const tempCelsius = item.main.temp ? (item.main.temp - 273.15).toFixed(1) : 'N/A';
+                        const feelsLike = item.main.feels_like ? (item.main.feels_like - 273.15).toFixed(1) : 'N/A';
+                        const tempMin = item.main.temp_min ? (item.main.temp_min - 273.15).toFixed(1) : 'N/A';
+                        const tempMax = item.main.temp_max ? (item.main.temp_max - 273.15).toFixed(1) : 'N/A';
+                        
+                        card.innerHTML = `
+                            <div style="font-size: 1.1rem; font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">${timeStr}</div>
+                            <img src="${item.icon_url}" alt="${item.weather.description}">
+                            <div class="temp">${tempCelsius}°C</div>
+                            <div class="desc">${item.weather.description}</div>
+                            <div class="details">
+                                <span>Feels like: <strong>${feelsLike}°C</strong></span>
+                                <span>Min/Max: <strong>${tempMin}° / ${tempMax}°</strong></span>
+                                <span>Humidity: <strong>${item.main.humidity || 'N/A'}%</strong></span>
+                                <span>Pressure: <strong>${item.main.pressure || 'N/A'} hPa</strong></span>
+                                <span>Sea Level: <strong>${item.main.sea_level || 'N/A'} hPa</strong></span>
+                                <span>Grnd Level: <strong>${item.main.grnd_level || 'N/A'} hPa</strong></span>
+                                <span>Clouds: <strong>${item.clouds.all || 0}%</strong></span>
+                                <span>Visibility: <strong>${(item.visibility.visibility || 0) / 1000} km</strong></span>
+                            </div>
+                        `;
+                        row.appendChild(card);
+                    });
+                    
+                    section.appendChild(row);
+                    container.appendChild(section);
+                });
+
+                content.style.display = 'block';
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.style.display = 'block';
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
